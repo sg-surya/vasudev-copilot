@@ -21,34 +21,34 @@
   :root {
     --background: #ffffff;
     --foreground: #0f172a;
-    --sidebar: #f8fafc;
+    --sidebar: #ffffff;
     --sidebar-foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
     --border: #e2e8f0;
     --input: #f1f5f9;
-    --primary: #6366f1;
+    --primary: var(--accent, #6366f1);
     --primary-foreground: #ffffff;
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(255, 255, 255, 0.2);
+    --accent: #D4FF00;
   }
 
   .dark {
-    --background: #0f172a;
+    --background: #0a0a0a;
     --foreground: #f8fafc;
-    --sidebar: #1e293b;
+    --sidebar: #0a0a0a;
     --sidebar-foreground: #f8fafc;
-    --card: #1e293b;
-    --card-foreground: #f8fafc;
-    --border: #334155;
-    --input: #334155;
-    --primary: #818cf8;
+    --card: #1a1a1a;
+    --border: #262626;
+    --input: #262626;
+    --primary: var(--accent, #818cf8);
     --primary-foreground: #ffffff;
-    --muted: #334155;
+    --muted: #262626;
     --muted-foreground: #94a3b8;
-    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-bg: rgba(10, 10, 10, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
   }
 }

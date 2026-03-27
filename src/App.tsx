@@ -9,10 +9,35 @@ import { GoogleGenAI } from '@google/genai';
 const initialChats: ChatSession[] = [];
 
 export default function App() {
-  const [chats, setChats] = useState<ChatSession[]>(initialChats);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [chats, setChats] = React.useState<ChatSession[]>(initialChats);
+  const [currentChatId, setCurrentChatId] = React.useState<string | null>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
+  React.useEffect(() => {
+    // Load theme
+    const appearance = localStorage.getItem('app_appearance') || 'system';
+    if (appearance === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (appearance === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    // Load accent color
+    const accentColor = localStorage.getItem('app_accent') || 'green';
+    const root = document.documentElement;
+    if (accentColor === 'green') {
+      root.style.setProperty('--accent', '#D4FF00');
+    } else {
+      root.style.setProperty('--accent', '#3b82f6');
+    }
+  }, []);
 
   const currentChat = useMemo(() => chats.find(c => c.id === currentChatId), [chats, currentChatId]);
 
@@ -30,7 +55,7 @@ export default function App() {
 
     if (!chatId) {
       // Create new chat
-      chatId = Date.now().toString();
+      chatId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
       const newChat: ChatSession = {
         id: chatId,
         title: content.slice(0, 30) + (content.length > 30 ? '...' : ''),
@@ -44,14 +69,19 @@ export default function App() {
     const chatIndex = newChats.findIndex(c => c.id === chatId);
     if (chatIndex === -1) return;
 
-    const userMessage: Message = { id: Date.now().toString(), role: 'user', content };
+    const userMessage: Message = { id: `msg-user-${Date.now()}`, role: 'user', content };
     newChats[chatIndex].messages.push(userMessage);
     setChats([...newChats]);
 
     // Call Gemini API
     try {
       const storedKey = localStorage.getItem('gemini_api_key');
+      const storedModel = localStorage.getItem('selected_ai_model');
       const apiKey = storedKey || process.env.GEMINI_API_KEY || '';
+      
+      const validModels = ['gemini-3-flash-preview', 'gemini-3.1-pro-preview', 'gemini-3.1-flash-lite-preview'];
+      const model = (storedModel && validModels.includes(storedModel)) ? storedModel : 'gemini-3-flash-preview';
+      
       const ai = new GoogleGenAI({ apiKey });
       
       const history = newChats[chatIndex].messages.slice(0, -1).map(msg => ({
@@ -61,11 +91,11 @@ export default function App() {
       history.push({ role: 'user', parts: [{ text: content }] });
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-preview',
+        model: model,
         contents: history as any,
       });
 
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), role: 'ai', content: response.text || 'No response' };
+      const aiMessage: Message = { id: `msg-ai-${Date.now()}`, role: 'ai', content: response.text || 'No response' };
       
       setChats(prevChats => {
         const updated = [...prevChats];
@@ -78,7 +108,7 @@ export default function App() {
 
     } catch (error) {
       console.error("Error calling Gemini:", error);
-      const errorMessage: Message = { id: (Date.now() + 1).toString(), role: 'ai', content: 'Sorry, I encountered an error processing your request.' };
+      const errorMessage: Message = { id: `msg-error-${Date.now()}`, role: 'ai', content: 'Sorry, I encountered an error processing your request.' };
       setChats(prevChats => {
         const updated = [...prevChats];
         const idx = updated.findIndex(c => c.id === chatId);
@@ -91,7 +121,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-full p-2 overflow-hidden bg-[#111111] text-slate-900">
+    <div className="flex h-screen w-full p-2 overflow-hidden bg-background text-foreground">
       {/* Main Layout */}
       <div className="relative z-10 flex h-full w-full gap-2">
         <Sidebar 
@@ -104,13 +134,14 @@ export default function App() {
           onOpenSettings={() => setIsSettingsModalOpen(true)}
         />
         
-        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden bg-[#F9F9F9]">
+        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden bg-card border border-border">
           {currentChatId ? (
             <Chat 
               chat={currentChat!} 
               onSendMessage={handleSendMessage} 
               onOpenSettings={() => setIsSettingsModalOpen(true)}
               toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+              isSidebarOpen={isSidebarOpen}
             />
           ) : (
             <Home 
@@ -118,6 +149,7 @@ export default function App() {
               onSendMessage={handleSendMessage} 
               onSelectChat={handleSelectChat}
               toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+              isSidebarOpen={isSidebarOpen}
             />
           )}
         </main>

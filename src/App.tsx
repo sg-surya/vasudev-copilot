@@ -9,10 +9,18 @@ import { GoogleGenAI } from '@google/genai';
 const initialChats: ChatSession[] = [];
 
 export default function App() {
-  const [chats, setChats] = React.useState<ChatSession[]>(initialChats);
+  const [chats, setChats] = React.useState<ChatSession[]>(() => {
+    const stored = localStorage.getItem('vasudev_chats');
+    return stored ? JSON.parse(stored) : initialChats;
+  });
   const [currentChatId, setCurrentChatId] = React.useState<string | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
+  // Persistence
+  React.useEffect(() => {
+    localStorage.setItem('vasudev_chats', JSON.stringify(chats));
+  }, [chats]);
 
   React.useEffect(() => {
     // Load theme
@@ -38,14 +46,19 @@ export default function App() {
       root.style.setProperty('--accent', '#3b82f6');
     }
 
-    // Load Personalization
-    const bgImage = localStorage.getItem('app_bg_image') || 'none';
-    const blurIntensity = localStorage.getItem('app_blur_intensity') || '16';
-    const glassOpacity = localStorage.getItem('app_glass_opacity') || '0.15';
-
-    root.style.setProperty('--bg-image', bgImage === 'none' ? 'none' : `url(${bgImage})`);
-    root.style.setProperty('--blur-intensity', `${blurIntensity}px`);
-    root.style.setProperty('--glass-opacity', glassOpacity);
+    // Keyboard Shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        handleNewChat();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        setIsSidebarOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const currentChat = useMemo(() => chats.find(c => c.id === currentChatId), [chats, currentChatId]);
@@ -58,9 +71,9 @@ export default function App() {
     setCurrentChatId(id);
   };
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, image?: string) => {
     let chatId = currentChatId;
-    let newChats = [...chats];
+    let updatedChats = [...chats];
 
     if (!chatId) {
       // Create new chat
@@ -71,18 +84,24 @@ export default function App() {
         date: 'Just now',
         messages: [],
       };
-      newChats = [newChat, ...newChats];
+      updatedChats = [newChat, ...updatedChats];
       setCurrentChatId(chatId);
     }
 
-    const chatIndex = newChats.findIndex(c => c.id === chatId);
+    const chatIndex = updatedChats.findIndex(c => c.id === chatId);
     if (chatIndex === -1) return;
 
-    const userMessage: Message = { id: `msg-user-${Date.now()}`, role: 'user', content };
-    newChats[chatIndex].messages.push(userMessage);
-    setChats([...newChats]);
+    const userMessage: Message = { id: `msg-user-${Date.now()}`, role: 'user', content, image };
+    updatedChats[chatIndex].messages.push(userMessage);
+    
+    // Add placeholder AI message for streaming
+    const aiMessageId = `msg-ai-${Date.now()}`;
+    const aiMessage: Message = { id: aiMessageId, role: 'ai', content: '' };
+    updatedChats[chatIndex].messages.push(aiMessage);
+    
+    setChats([...updatedChats]);
 
-    // Call Gemini API
+    // Call Gemini API with streaming
     try {
       const storedKey = localStorage.getItem('gemini_api_key');
       const storedModel = localStorage.getItem('selected_ai_model');
@@ -93,36 +112,60 @@ export default function App() {
       
       const ai = new GoogleGenAI({ apiKey });
       
-      const history = newChats[chatIndex].messages.slice(0, -1).map(msg => ({
+      const history = updatedChats[chatIndex].messages.slice(0, -2).map(msg => ({
         role: msg.role === 'ai' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
+        parts: [
+          ...(msg.image ? [{ inlineData: { data: msg.image.split(',')[1], mimeType: 'image/png' } }] : []),
+          { text: msg.content }
+        ]
       }));
-      history.push({ role: 'user', parts: [{ text: content }] });
 
-      const response = await ai.models.generateContent({
-        model: model,
-        contents: history as any,
-      });
-
-      const aiMessage: Message = { id: `msg-ai-${Date.now()}`, role: 'ai', content: response.text || 'No response' };
-      
-      setChats(prevChats => {
-        const updated = [...prevChats];
-        const idx = updated.findIndex(c => c.id === chatId);
-        if (idx !== -1) {
-          updated[idx].messages.push(aiMessage);
+      const contents = [
+        ...history,
+        { 
+          role: 'user', 
+          parts: [
+            ...(image ? [{ inlineData: { data: image.split(',')[1], mimeType: 'image/png' } }] : []),
+            { text: content }
+          ] 
         }
-        return updated;
+      ];
+
+      const responseStream = await ai.models.generateContentStream({
+        model: model,
+        contents: contents as any,
+        config: {
+          tools: [{ googleSearch: {} }]
+        }
       });
+
+      let fullText = '';
+      for await (const chunk of responseStream) {
+        fullText += chunk.text;
+        setChats(prevChats => {
+          const updated = [...prevChats];
+          const idx = updated.findIndex(c => c.id === chatId);
+          if (idx !== -1) {
+            const msgIdx = updated[idx].messages.findIndex(m => m.id === aiMessageId);
+            if (msgIdx !== -1) {
+              updated[idx].messages[msgIdx].content = fullText;
+            }
+          }
+          return updated;
+        });
+      }
 
     } catch (error) {
       console.error("Error calling Gemini:", error);
-      const errorMessage: Message = { id: `msg-error-${Date.now()}`, role: 'ai', content: 'Sorry, I encountered an error processing your request.' };
+      const errorMessage = 'Sorry, I encountered an error processing your request.';
       setChats(prevChats => {
         const updated = [...prevChats];
         const idx = updated.findIndex(c => c.id === chatId);
         if (idx !== -1) {
-          updated[idx].messages.push(errorMessage);
+          const msgIdx = updated[idx].messages.findIndex(m => m.id === aiMessageId);
+          if (msgIdx !== -1) {
+            updated[idx].messages[msgIdx].content = errorMessage;
+          }
         }
         return updated;
       });
@@ -130,7 +173,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-full p-2 overflow-hidden bg-transparent text-foreground">
+    <div className="flex h-screen w-full p-2 overflow-hidden bg-background text-foreground">
       {/* Main Layout */}
       <div className="relative z-10 flex h-full w-full gap-2">
         <Sidebar 
@@ -143,7 +186,7 @@ export default function App() {
           onOpenSettings={() => setIsSettingsModalOpen(true)}
         />
         
-        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden">
+        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden bg-card border border-border">
           {currentChatId ? (
             <Chat 
               chat={currentChat!} 

@@ -5,6 +5,7 @@ import Chat from './components/Chat';
 import SettingsModal from './components/SettingsModal';
 import { ChatSession, Message } from './types';
 import { GoogleGenAI } from '@google/genai';
+import { AnimatePresence, motion } from 'motion/react';
 
 const initialChats: ChatSession[] = [];
 
@@ -173,9 +174,9 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-full p-2 overflow-hidden bg-background text-foreground">
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
       {/* Main Layout */}
-      <div className="relative z-10 flex h-full w-full gap-2">
+      <div className="relative z-10 flex h-full w-full overflow-hidden">
         <Sidebar 
           chats={chats} 
           currentChatId={currentChatId} 
@@ -186,24 +187,44 @@ export default function App() {
           onOpenSettings={() => setIsSettingsModalOpen(true)}
         />
         
-        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden bg-card border border-border">
-          {currentChatId ? (
-            <Chat 
-              chat={currentChat!} 
-              onSendMessage={handleSendMessage} 
-              onOpenSettings={() => setIsSettingsModalOpen(true)}
-              toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-              isSidebarOpen={isSidebarOpen}
-            />
-          ) : (
-            <Home 
-              chats={chats} 
-              onSendMessage={handleSendMessage} 
-              onSelectChat={handleSelectChat}
-              toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-              isSidebarOpen={isSidebarOpen}
-            />
-          )}
+        <main className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-500 ease-in-out ${isSidebarOpen ? 'ml-0' : 'ml-0'}`}>
+          <AnimatePresence mode="wait">
+            {currentChatId ? (
+              <motion.div
+                key="chat"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="h-full w-full"
+              >
+                <Chat 
+                  chat={currentChat!} 
+                  onSendMessage={handleSendMessage} 
+                  onOpenSettings={() => setIsSettingsModalOpen(true)}
+                  toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                  isSidebarOpen={isSidebarOpen}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="home"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                className="h-full w-full"
+              >
+                <Home 
+                  chats={chats} 
+                  onSendMessage={handleSendMessage} 
+                  onSelectChat={handleSelectChat}
+                  toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                  isSidebarOpen={isSidebarOpen}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
       </div>
 

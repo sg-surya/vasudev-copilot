@@ -30,19 +30,20 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
 
   return (
     <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto relative glass-panel rounded-3xl text-foreground">
-      <div className="w-full flex justify-between items-center mb-16">
-        <div className="flex items-center gap-2">
+      <div className="w-full flex justify-center gap-4 items-center mb-16 sticky top-0 z-10 bg-transparent pointer-events-none">
+        <div className="flex items-center gap-2 pointer-events-auto">
           {!isSidebarOpen && (
-            <button onClick={toggleSidebar} className="p-2 -ml-2 text-muted-foreground hover:bg-muted rounded-md transition-all">
+            <button onClick={toggleSidebar} className="p-2 text-muted-foreground hover:bg-muted rounded-md transition-all bg-card border border-border shadow-sm">
               <PanelLeftOpen size={20} />
             </button>
           )}
-          <select className="text-sm font-medium px-3 py-1.5 rounded-lg outline-none border-none cursor-pointer bg-transparent hover:bg-muted text-foreground">
-            <option>Vasudev 1.0</option>
-          </select>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border shadow-sm">
+            <Globe size={14} className="text-primary" />
+            <span className="text-sm font-semibold tracking-tight">Vasudev 1.0</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="p-2 rounded-md hover:bg-muted text-muted-foreground transition-colors glass-panel shadow-sm flex items-center gap-2 px-3">
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <button className="p-2 rounded-md hover:bg-muted text-muted-foreground transition-colors bg-card border border-border shadow-sm flex items-center gap-2 px-3">
             <Share size={16} />
             <span className="text-xs font-medium">Export</span>
           </button>

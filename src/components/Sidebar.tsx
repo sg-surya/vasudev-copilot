@@ -21,7 +21,7 @@ export default function Sidebar({ chats, currentChatId, onSelectChat, onNewChat,
   }
 
   return (
-    <div className="w-[260px] h-full flex flex-col bg-sidebar text-sidebar-foreground overflow-hidden transition-all duration-300">
+    <div className="w-[260px] h-full flex flex-col glass-panel rounded-3xl text-sidebar-foreground overflow-hidden transition-all duration-300">
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
           <div className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center">
@@ -37,7 +37,7 @@ export default function Sidebar({ chats, currentChatId, onSelectChat, onNewChat,
       <div className="px-3 pb-4 space-y-2">
         <button 
           onClick={onNewChat}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted transition-all text-sm font-medium border border-border bg-card"
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted transition-all text-sm font-medium border border-border glass-panel"
         >
           <div className="flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>

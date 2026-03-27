@@ -31,9 +31,11 @@
     --primary-foreground: #ffffff;
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-bg: rgba(255, 255, 255, var(--glass-opacity, 0.75));
+    --glass-border: rgba(255, 255, 255, 0.4);
     --accent: #D4FF00;
+    --bg-image: none;
+    --blur-intensity: 16px;
   }
 
   .dark {
@@ -48,15 +50,29 @@
     --primary-foreground: #ffffff;
     --muted: #262626;
     --muted-foreground: #94a3b8;
-    --glass-bg: rgba(10, 10, 10, 0.7);
+    --glass-bg: rgba(0, 0, 0, var(--glass-opacity, 0.45));
     --glass-border: rgba(255, 255, 255, 0.1);
   }
 }
 
 body {
+  min-height: 100vh;
   background-color: var(--background);
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--foreground);
   font-family: 'Inter', system-ui, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.glass-panel {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-intensity));
+  -webkit-backdrop-filter: blur(var(--blur-intensity));
+  border: 1px solid var(--glass-border);
 }
 
 /* Custom Scrollbar */

@@ -29,7 +29,7 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto relative bg-card text-foreground">
+    <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-y-auto relative glass-panel rounded-3xl text-foreground">
       <div className="w-full flex justify-between items-center mb-16">
         <div className="flex items-center gap-2">
           {!isSidebarOpen && (
@@ -42,7 +42,7 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-md hover:bg-muted text-muted-foreground transition-colors bg-card border border-border shadow-sm flex items-center gap-2 px-3">
+          <button className="p-2 rounded-md hover:bg-muted text-muted-foreground transition-colors glass-panel shadow-sm flex items-center gap-2 px-3">
             <Share size={16} />
             <span className="text-xs font-medium">Export</span>
           </button>
@@ -55,7 +55,7 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
         <p className="text-sm text-muted-foreground">Your personal AI assistant for documents, research, and knowledge.</p>
       </div>
 
-      <div className="w-full max-w-3xl rounded-2xl shadow-lg border border-border p-2 mb-6 bg-card transition-all focus-within:ring-2 focus-within:ring-primary/20">
+      <div className="w-full max-w-3xl rounded-2xl shadow-lg border border-border p-2 mb-6 glass-panel transition-all focus-within:ring-2 focus-within:ring-primary/20">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -84,7 +84,7 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
       </div>
 
       <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-        <div className="bg-card rounded-2xl p-5 border border-border shadow-sm flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
+        <div className="glass-panel rounded-2xl p-5 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center mb-4 text-black">
             <BookOpen size={20} />
           </div>
@@ -92,7 +92,7 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
           <p className="text-xs text-muted-foreground leading-relaxed">Explore the latest updates and key discussions on legal topics today.</p>
         </div>
         
-        <div className="bg-card rounded-2xl p-5 border border-border shadow-sm flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
+        <div className="glass-panel rounded-2xl p-5 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center mb-4 text-black">
             <Laptop size={20} />
           </div>
@@ -100,7 +100,7 @@ export default function Home({ chats, onSendMessage, onSelectChat, toggleSidebar
           <p className="text-xs text-muted-foreground leading-relaxed">Discover important trends and changes shaping international law.</p>
         </div>
 
-        <div className="bg-card rounded-2xl p-5 border border-border shadow-sm flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
+        <div className="glass-panel rounded-2xl p-5 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center mb-4 text-black">
             <Globe size={20} />
           </div>

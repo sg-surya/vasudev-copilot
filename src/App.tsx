@@ -37,6 +37,15 @@ export default function App() {
     } else {
       root.style.setProperty('--accent', '#3b82f6');
     }
+
+    // Load Personalization
+    const bgImage = localStorage.getItem('app_bg_image') || 'none';
+    const blurIntensity = localStorage.getItem('app_blur_intensity') || '16';
+    const glassOpacity = localStorage.getItem('app_glass_opacity') || '0.15';
+
+    root.style.setProperty('--bg-image', bgImage === 'none' ? 'none' : `url(${bgImage})`);
+    root.style.setProperty('--blur-intensity', `${blurIntensity}px`);
+    root.style.setProperty('--glass-opacity', glassOpacity);
   }, []);
 
   const currentChat = useMemo(() => chats.find(c => c.id === currentChatId), [chats, currentChatId]);
@@ -121,7 +130,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-full p-2 overflow-hidden bg-background text-foreground">
+    <div className="flex h-screen w-full p-2 overflow-hidden bg-transparent text-foreground">
       {/* Main Layout */}
       <div className="relative z-10 flex h-full w-full gap-2">
         <Sidebar 
@@ -134,7 +143,7 @@ export default function App() {
           onOpenSettings={() => setIsSettingsModalOpen(true)}
         />
         
-        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden bg-card border border-border">
+        <main className="flex-1 flex flex-col h-full rounded-3xl overflow-hidden">
           {currentChatId ? (
             <Chat 
               chat={currentChat!} 

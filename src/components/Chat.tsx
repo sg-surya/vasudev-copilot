@@ -38,9 +38,9 @@ export default function Chat({ chat, onSendMessage, toggleSidebar, isSidebarOpen
   };
 
   return (
-    <div className="flex flex-col h-full w-full relative bg-card text-foreground">
+    <div className="flex flex-col h-full w-full relative glass-panel rounded-3xl text-foreground">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 sticky top-0 z-10 bg-card border-b border-border">
+      <header className="flex items-center justify-between px-6 py-4 sticky top-0 z-10 glass-panel border-b border-border">
         <div className="flex items-center gap-2">
           {!isSidebarOpen && (
             <button onClick={toggleSidebar} className="p-2 -ml-2 text-muted-foreground hover:bg-muted rounded-md transition-all">
@@ -52,7 +52,7 @@ export default function Chat({ chat, onSendMessage, toggleSidebar, isSidebarOpen
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-md hover:bg-muted text-muted-foreground transition-colors bg-card border border-border shadow-sm flex items-center gap-2 px-3">
+          <button className="p-2 rounded-md hover:bg-muted text-muted-foreground transition-colors glass-panel shadow-sm flex items-center gap-2 px-3">
             <Share size={16} />
             <span className="text-xs font-medium">Export</span>
           </button>
@@ -74,7 +74,7 @@ export default function Chat({ chat, onSendMessage, toggleSidebar, isSidebarOpen
                     V
                   </div>
                 )}
-                <div className={`max-w-[85%] ${msg.role === 'user' ? 'bg-muted text-foreground rounded-3xl rounded-tr-sm px-6 py-4 shadow-sm' : 'bg-card text-foreground rounded-3xl rounded-tl-sm px-6 py-4 shadow-sm border border-border'}`}>
+                <div className={`max-w-[85%] ${msg.role === 'user' ? 'bg-muted text-foreground rounded-3xl rounded-tr-sm px-6 py-4 shadow-sm' : 'glass-panel text-foreground rounded-3xl rounded-tl-sm px-6 py-4 shadow-sm'}`}>
                   <div className={`prose max-w-none text-[15px] leading-relaxed dark:prose-invert ${msg.role === 'user' ? 'text-foreground' : 'text-foreground'}`}>
                     {msg.role === 'user' ? (
                       <p className="whitespace-pre-wrap m-0">{msg.content}</p>
@@ -108,9 +108,9 @@ export default function Chat({ chat, onSendMessage, toggleSidebar, isSidebarOpen
       </div>
 
       {/* Input Area */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 pt-10 bg-gradient-to-t from-card via-card to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 p-6 pt-10 bg-gradient-to-t from-background via-background/80 to-transparent">
         <div className="max-w-3xl mx-auto">
-          <div className="w-full rounded-2xl shadow-lg border border-border p-2 bg-card transition-all focus-within:ring-2 focus-within:ring-primary/20">
+          <div className="w-full rounded-2xl shadow-lg border border-border p-2 glass-panel transition-all focus-within:ring-2 focus-within:ring-primary/20">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}

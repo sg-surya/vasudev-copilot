@@ -45,9 +45,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [spokenLanguage, setSpokenLanguage] = useState('Auto-detect');
   const [voice, setVoice] = useState('Arbor');
 
+  // Load settings
   useEffect(() => {
     const storedKey = localStorage.getItem('gemini_api_key');
     const storedModel = localStorage.getItem('selected_ai_model');
+    const storedProvider = localStorage.getItem('selected_ai_provider');
     const storedAppearance = localStorage.getItem('app_appearance');
     const storedAccent = localStorage.getItem('app_accent');
     const storedLanguage = localStorage.getItem('app_language');
@@ -56,6 +58,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     
     if (storedKey) setApiKey(storedKey);
     if (storedModel) setSelectedModel(storedModel);
+    if (storedProvider) setSelectedProvider(storedProvider);
     if (storedAppearance) setAppearance(storedAppearance);
     if (storedAccent) setAccentColor(storedAccent);
     if (storedLanguage) setLanguage(storedLanguage);
@@ -63,9 +66,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     if (storedVoice) setVoice(storedVoice);
   }, [isOpen]);
 
-  const handleSave = () => {
+  // Auto-save and apply settings
+  useEffect(() => {
+    if (!isOpen) return;
+
     localStorage.setItem('gemini_api_key', apiKey);
     localStorage.setItem('selected_ai_model', selectedModel);
+    localStorage.setItem('selected_ai_provider', selectedProvider);
     localStorage.setItem('app_appearance', appearance);
     localStorage.setItem('app_accent', accentColor);
     localStorage.setItem('app_language', language);
@@ -93,9 +100,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     } else {
       root.style.setProperty('--accent', '#3b82f6'); // Blue
     }
-    
-    onClose();
-  };
+  }, [apiKey, selectedModel, selectedProvider, appearance, accentColor, language, spokenLanguage, voice, isOpen]);
 
   if (!isOpen) return null;
 
@@ -289,15 +294,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <p>Settings for {activeTab} will appear here.</p>
               </div>
             )}
-          </div>
-
-          <div className="p-6 border-t border-border flex justify-end gap-3 bg-muted/30">
-            <button onClick={onClose} className="px-6 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Cancel
-            </button>
-            <button onClick={handleSave} className="px-8 py-2 rounded-full text-sm font-medium bg-primary text-black hover:opacity-90 transition-colors shadow-lg">
-              Save changes
-            </button>
           </div>
         </div>
       </div>
